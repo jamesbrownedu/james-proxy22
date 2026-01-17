@@ -3,120 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unblock Proxy</title>
+    <title>Open Unblocked Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #1a1a1a;
+            background-color: #121212;
             color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
             text-align: center;
-            max-width: 600px;
-            padding: 20px;
-            background: #2b2b2b;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 50px;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: none;
-            margin-bottom: 20px;
-        }
-
         button {
-            background: #ffcc00;
+            background-color: #ffcc00;
             color: black;
-            font-size: 1.2rem;
-            padding: 10px 20px;
+            font-size: 18px;
+            padding: 15px 30px;
             border: none;
             border-radius: 5px;
-            margin: 10px;
             cursor: pointer;
             transition: background 0.3s ease;
         }
-
         button:hover {
-            background: #ff9900;
-        }
-
-        .error {
-            color: red;
-            font-size: 1rem;
-            margin-top: 10px;
+            background-color: #ffaa00;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Unblock Proxy</h1>
-    <input id="urlInput" type="text" placeholder="Enter the URL you want to unblock" />
-    <div>
-        <button id="openBlobBtn">Open in Blob URL</button>
-        <button id="openAboutBlankBtn">Open in About:Blank</button>
-    </div>
-    <div class="error" id="errorMsg"></div>
-</div>
+    <h1>Open Unblocked Website</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL (without http://)" style="width: 60%; padding: 10px; font-size: 16px; margin-bottom: 20px;">
+    <button 
+        onclick="fetchAndOpenContent()"
+        style="width: 200px; height: 60px; font-size: 20px;">
+        Open Site
+    </button>
 
-<script>
-    const openBlobBtn = document.getElementById('openBlobBtn');
-    const openAboutBlankBtn = document.getElementById('openAboutBlankBtn');
-    const urlInput = document.getElementById('urlInput');
-    const errorMsg = document.getElementById('errorMsg');
+    <script>
+        // Function to fetch and open content
+        function fetchAndOpenContent() {
+            let url = document.getElementById('urlInput').value;
 
-    // Helper function to validate URL
-    function isValidUrl(url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (_) {
-            return false;
+            // Ensure the URL includes the scheme (http:// or https://)
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url; // Prepend https:// if not present
+            }
+
+            // Fetch the HTML content
+            fetch(url + "?t=" + Date.now()) // Add timestamp to prevent caching
+                .then(response => response.text())
+                .then(text => {
+                    // Open a new window with the content in an iframe
+                    const newWin = window.open("about:blank", "_blank");
+                    if (newWin) {
+                        newWin.document.open();
+                        newWin.document.write('<iframe src="about:blank" width="100%" height="100%" style="border:none"></iframe>');
+                        const iframe = newWin.document.querySelector('iframe');
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(text);
+                        iframe.contentWindow.document.close();
+                        newWin.document.close();
+                    }
+                })
+                .catch(error => {
+                    alert('Error fetching the content: ' + error.message);
+                });
         }
-    }
-
-    // Event listener for the "Open in Blob URL" button
-    openBlobBtn.addEventListener('click', () => {
-        const url = urlInput.value;
-        if (isValidUrl(url)) {
-            const blobUrl = URL.createObjectURL(new Blob([`<html><iframe src="${url}" width="100%" height="100%" style="border:none"></iframe></html>`], {type: 'text/html'}));
-            window.open(blobUrl, "_blank");
-            errorMsg.textContent = '';
-        } else {
-            errorMsg.textContent = 'Please enter a valid URL.';
-        }
-    });
-
-    // Event listener for the "Open in About:Blank" button
-    openAboutBlankBtn.addEventListener('click', () => {
-        const url = urlInput.value;
-        if (isValidUrl(url)) {
-            const newWin = window.open("about:blank", "_blank");
-            newWin.document.open();
-            newWin.document.write(`<iframe src="${url}" width="100%" height="100%" style="border:none"></iframe>`);
-            newWin.document.close();
-            errorMsg.textContent = '';
-        } else {
-            errorMsg.textContent = 'Please enter a valid URL.';
-        }
-    });
-</script>
+    </script>
 
 </body>
 </html>
