@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Unblocked Website</title>
+    <title>Unblock Website Proxy</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +11,14 @@
             color: white;
             text-align: center;
             padding: 50px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 60%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
         button {
             background-color: #ffcc00;
@@ -25,31 +33,44 @@
         button:hover {
             background-color: #ffaa00;
         }
+        .error {
+            color: red;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Open Unblocked Website</h1>
-    <input type="text" id="urlInput" placeholder="Enter URL (without http://)" style="width: 60%; padding: 10px; font-size: 16px; margin-bottom: 20px;">
-    <button 
-        onclick="fetchAndOpenContent()"
-        style="width: 200px; height: 60px; font-size: 20px;">
-        Open Site
-    </button>
+    <p>Enter a URL (without the scheme):</p>
+    <input type="text" id="urlInput" placeholder="Enter URL (without http://)">
+    <br>
+    <button onclick="fetchAndOpenContent()">Open Site</button>
+
+    <div class="error" id="errorMsg"></div>
 
     <script>
         // Function to fetch and open content
         function fetchAndOpenContent() {
-            let url = document.getElementById('urlInput').value;
+            let url = document.getElementById('urlInput').value.trim();
+
+            // Reset error message
+            document.getElementById('errorMsg').textContent = '';
 
             // Ensure the URL includes the scheme (http:// or https://)
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url; // Prepend https:// if not present
             }
 
-            // Fetch the HTML content
+            // Fetch the HTML content from GitHub Pages (or another valid URL)
             fetch(url + "?t=" + Date.now()) // Add timestamp to prevent caching
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch content. Please check the URL.');
+                    }
+                    return response.text();
+                })
                 .then(text => {
                     // Open a new window with the content in an iframe
                     const newWin = window.open("about:blank", "_blank");
@@ -64,7 +85,7 @@
                     }
                 })
                 .catch(error => {
-                    alert('Error fetching the content: ' + error.message);
+                    document.getElementById('errorMsg').textContent = error.message;
                 });
         }
     </script>
