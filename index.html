@@ -63,8 +63,8 @@
                 url = 'https://' + url; // Prepend https:// if not present
             }
 
-            // Fetch the HTML content from GitHub Pages (or another valid URL)
-            fetch(url + "?t=" + Date.now()) // Add timestamp to prevent caching
+            // Call the backend proxy server to fetch the content
+            fetch('http://localhost:3000/proxy?url=' + encodeURIComponent(url))
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch content. Please check the URL.');
